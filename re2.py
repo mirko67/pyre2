@@ -43,9 +43,20 @@ __all__ = [
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
 
+_compile_cache = {}
+_MAXCAHCE      = 100
+
 def compile(pattern):
     "Compile a regular expression pattern, returning a pattern object."
-    return _compile(pattern)
+    cache = _compile_cache
+    res = cache.get(pattern)
+    if res:
+        return res
+    res = _compile(pattern)
+    if len(cache) > _MAXCAHCE:
+        cache.clear()
+    cache[pattern] = res
+    return res
 
 def search(pattern, string):
     """Scan through string looking for a match to the pattern, returning
